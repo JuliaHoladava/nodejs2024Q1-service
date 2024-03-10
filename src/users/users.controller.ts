@@ -10,6 +10,7 @@ import {
   NotFoundException,
   BadRequestException,
   ParseUUIDPipe,
+  HttpCode,
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { plainToClass } from 'class-transformer';
@@ -42,6 +43,7 @@ export class UsersController {
   }
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   createUser(@Body() createUserDto: CreateUserDto) {
     const newUser = {
       ...createUserDto,
@@ -83,6 +85,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   deleteUser(@Param('id', ParseUUIDPipe) id: string) {
     const index = this.users.findIndex((user) => user.id === id);
 
@@ -91,6 +94,5 @@ export class UsersController {
     }
 
     this.users.splice(index, 1);
-    return { statusCode: HttpStatus.NO_CONTENT };
   }
 }
