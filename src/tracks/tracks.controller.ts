@@ -36,6 +36,7 @@ export class TracksController {
     if (!track) {
       throw new NotFoundException(`Track with ID ${id} not found`);
     }
+    return track;
   }
 
   @Post()
