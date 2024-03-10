@@ -9,6 +9,7 @@ import {
   HttpStatus,
   NotFoundException,
   ParseUUIDPipe,
+  HttpCode,
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateTrackDto } from './dto/create-track.dto';
@@ -40,6 +41,7 @@ export class TracksController {
   }
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   createTrack(@Body() createTrackDto: CreateTrackDto) {
     const newTrack = {
       ...createTrackDto,
@@ -69,6 +71,7 @@ export class TracksController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   deleteTrack(@Param('id', ParseUUIDPipe) id: string) {
     const index = this.tracks.findIndex((track) => track.id === id);
 
