@@ -8,7 +8,7 @@
 ## Downloading
 
 ```
-git clone {repository URL}
+git clone https://github.com/JuliaHoladava/nodejs2024Q1-service.git
 ```
 
 ## Installing NPM modules
