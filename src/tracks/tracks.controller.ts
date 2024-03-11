@@ -7,22 +7,20 @@ import {
   Param,
   Body,
   HttpStatus,
-  NotFoundException,
   ParseUUIDPipe,
   HttpCode,
 } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { Track } from './entities/track.entity';
+import { TracksService } from './tracks.service';
 
 @Controller('track')
 export class TracksController {
-  private tracks: Track[] = [];
+  constructor(private readonly tracksServise: TracksService) {}
 
   @Get()
   getAllTracks() {
-    return this.tracks;
+    return this.tracksServise.getAllTracks();
   }
 
   @Get(':id')
@@ -33,22 +31,13 @@ export class TracksController {
     )
     id: string,
   ) {
-    const track = this.tracks.find((track) => track.id === id);
-    if (!track) {
-      throw new NotFoundException(`Track with ID ${id} not found`);
-    }
-    return track;
+    return this.tracksServise.getTrackById(id);
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   createTrack(@Body() createTrackDto: CreateTrackDto) {
-    const newTrack = {
-      ...createTrackDto,
-      id: uuidv4(),
-    };
-    this.tracks.push(newTrack);
-    return newTrack;
+    return this.tracksServise.createTrack(createTrackDto);
   }
 
   @Put(':id')
@@ -56,29 +45,12 @@ export class TracksController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateTrackDto: UpdateTrackDto,
   ) {
-    const trackIndex = this.tracks.findIndex((track) => track.id === id);
-
-    if (trackIndex === -1) {
-      throw new NotFoundException(`Track with ID ${id} not found`);
-    }
-
-    this.tracks[trackIndex] = {
-      ...this.tracks[trackIndex],
-      ...updateTrackDto,
-    };
-
-    return this.tracks[trackIndex];
+    return this.tracksServise.updateTrack(id, updateTrackDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteTrack(@Param('id', ParseUUIDPipe) id: string) {
-    const index = this.tracks.findIndex((track) => track.id === id);
-
-    if (index === -1) {
-      throw new NotFoundException(`Trackr with ID ${id} not found`);
-    }
-
-    this.tracks.splice(index, 1);
+    return this.tracksServise.deleteTrack(id);
   }
 }
