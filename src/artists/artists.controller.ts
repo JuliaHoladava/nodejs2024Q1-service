@@ -7,22 +7,20 @@ import {
   Param,
   Body,
   HttpStatus,
-  NotFoundException,
   ParseUUIDPipe,
   HttpCode,
 } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-import { Artist } from './entities/artist.entity';
+import { ArtistsService } from './artists.service';
 
 @Controller('artist')
 export class ArtistsController {
-  private artists: Artist[] = [];
+  constructor(private readonly artistsServise: ArtistsService) {}
 
   @Get()
   getAllArtists() {
-    return this.artists;
+    return this.artistsServise.getAllArtists();
   }
 
   @Get(':id')
@@ -33,22 +31,13 @@ export class ArtistsController {
     )
     id: string,
   ) {
-    const artist = this.artists.find((artist) => artist.id === id);
-    if (!artist) {
-      throw new NotFoundException(`Artist with ID ${id} not found`);
-    }
-    return artist;
+    return this.artistsServise.getArtistById(id);
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   createArtist(@Body() createArtistDto: CreateArtistDto) {
-    const newArtist = {
-      ...createArtistDto,
-      id: uuidv4(),
-    };
-    this.artists.push(newArtist);
-    return newArtist;
+    return this.artistsServise.createArtist(createArtistDto);
   }
 
   @Put(':id')
@@ -56,29 +45,12 @@ export class ArtistsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateArtistDto: UpdateArtistDto,
   ) {
-    const artistIndex = this.artists.findIndex((artist) => artist.id === id);
-
-    if (artistIndex === -1) {
-      throw new NotFoundException(`Artist with ID ${id} not found`);
-    }
-
-    this.artists[artistIndex] = {
-      ...this.artists[artistIndex],
-      ...updateArtistDto,
-    };
-
-    return this.artists[artistIndex];
+    return this.artistsServise.updateArtist(id, updateArtistDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteArtist(@Param('id', ParseUUIDPipe) id: string) {
-    const index = this.artists.findIndex((artist) => artist.id === id);
-
-    if (index === -1) {
-      throw new NotFoundException(`Artist with ID ${id} not found`);
-    }
-
-    this.artists.splice(index, 1);
+    return this.artistsServise.deleteArtist(id);
   }
 }
